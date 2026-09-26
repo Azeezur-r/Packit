@@ -260,10 +260,43 @@
   .usecase-item span.n{font-family:'Big Shoulders Display',sans-serif;color:var(--teal-dim);font-size:13px;}
 
   /* how it works */
-  .steps-row{display:grid;grid-template-columns:repeat(3,1fr);gap:36px;}
-  .step-card .step-num{font-family:'Big Shoulders Display',sans-serif;font-size:15px;color:var(--teal-dim);margin-bottom:16px;border-top:2px solid var(--ink);padding-top:14px;display:inline-block;}
-  .step-card h3{font-size:21px;margin-bottom:8px;color:var(--ink);font-weight:600;font-family:'Inter',sans-serif;letter-spacing:-.01em;}
-  .step-card p{font-size:14px;line-height:1.6;color:var(--char-500);max-width:280px;}
+  .steps{--node:56px;--gap:28px;position:relative;}
+  .steps-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);}
+  .steps-track{position:absolute;top:calc(var(--node) / 2 - 1px);left:calc(var(--node) / 2);width:calc((100% - var(--gap) * 2) * 2 / 3 + var(--gap) * 2);height:2px;background:var(--line);border-radius:2px;}
+  .steps-fill{position:absolute;inset:0;background:var(--teal);border-radius:inherit;transform:scaleX(0);transform-origin:left;transition:transform 1.4s cubic-bezier(.65,0,.35,1) .2s;}
+  .steps-runner{position:absolute;top:50%;left:0;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(34,184,171,.18);opacity:0;}
+  .steps.in .steps-fill{transform:scaleX(1);}
+  .steps.in .steps-runner{animation:stepsRun 4.2s var(--ease) 2s infinite;}
+  @keyframes stepsRun{0%{left:0;opacity:0;}10%{opacity:1;}85%{opacity:1;}100%{left:100%;opacity:0;}}
+
+  .step{--d:calc(.2s + var(--i) * .55s);position:relative;display:flex;flex-direction:column;}
+  .step-node{position:relative;z-index:1;width:var(--node);height:var(--node);border-radius:50%;display:grid;place-items:center;background:var(--cream);border:1.5px solid var(--line);color:var(--char-500);transition:background .4s var(--ease) var(--d), border-color .4s var(--ease) var(--d), color .4s var(--ease) var(--d), transform .3s var(--ease);}
+  .step-node::after{content:"";position:absolute;inset:-1.5px;border-radius:50%;border:2px solid var(--teal);opacity:0;}
+  .step-node svg{width:24px;height:24px;}
+  .step-node svg *{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .8s var(--ease) calc(var(--d) + .15s);}
+  .steps.in .step-node{background:var(--ink);border-color:var(--ink);color:var(--teal);}
+  .steps.in .step-node svg *{stroke-dashoffset:0;}
+  .steps.in .step-node::after{animation:stepPulse 1s var(--ease) var(--d) 1 forwards;}
+  @keyframes stepPulse{0%{opacity:.9;transform:scale(1);}100%{opacity:0;transform:scale(1.6);}}
+
+  .step-card{position:relative;overflow:hidden;flex:1;margin-top:24px;padding:26px 26px 30px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-m);transition:transform .3s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease);}
+  .steps:not(.in) .step-card{opacity:0;}
+  .steps.in .step-card{animation:stepIn .7s var(--ease) var(--d) backwards;}
+  @keyframes stepIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+  .step-num{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-dim);margin-bottom:12px;}
+  .step-card h3{font-size:21px;margin-bottom:8px;color:var(--ink);font-weight:600;font-family:'Inter',sans-serif;letter-spacing:-.01em;line-height:1.25;}
+  .step-card > :not(.step-ghost){position:relative;z-index:1;}
+  .step-card p{font-size:14px;line-height:1.6;color:var(--char-500);max-width:260px;}
+  .step-ghost{position:absolute;right:-4px;bottom:-34px;font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:108px;opacity:.7;line-height:1;color:transparent;-webkit-text-stroke:1px var(--line);pointer-events:none;transition:-webkit-text-stroke-color .3s var(--ease), transform .4s var(--ease);}
+  .step:hover .step-card{border-color:var(--teal);box-shadow:0 14px 30px -18px rgba(24,25,27,.35);transform:translateY(-4px);}
+  .step:hover .step-ghost{-webkit-text-stroke-color:var(--teal);transform:translateY(-6px);}
+  .step:hover .step-node{transform:scale(1.06);}
+  .steps-lede{font-size:15px;line-height:1.6;color:var(--char-500);max-width:300px;}
+  .steps-head{margin-bottom:48px;}
+  @media (prefers-reduced-motion: reduce){
+    .step{--d:0s;}
+    .steps-runner{display:none;}
+  }
 
   /* final CTA */
   .final-cta{background:var(--ink);padding:90px 0;}
@@ -379,7 +412,14 @@
   @media (max-width:860px){
     .prod-grid{grid-template-columns:repeat(2,1fr);}
     .foot-grid{grid-template-columns:1fr 1fr;gap:32px 22px;}
-    .steps-row{grid-template-columns:1fr;gap:30px;}
+    .steps-head{flex-direction:column;align-items:flex-start;}
+    .steps-list{grid-template-columns:1fr;gap:18px;}
+    .steps-track{display:none;}
+    .step{display:grid;grid-template-columns:var(--node) 1fr;column-gap:18px;}
+    .step:not(:last-child)::before{content:"";position:absolute;left:calc(var(--node) / 2 - 1px);top:var(--node);bottom:-18px;width:2px;background:var(--line);}
+    .step:not(:last-child)::after{content:"";position:absolute;left:calc(var(--node) / 2 - 1px);top:var(--node);bottom:-18px;width:2px;background:var(--teal);transform:scaleY(0);transform-origin:top;transition:transform .6s var(--ease) calc(var(--d) + .3s);}
+    .steps.in .step:not(:last-child)::after{transform:scaleY(1);}
+    .step-card{margin-top:0;}
     .usecase-list{grid-template-columns:1fr;}
     .why-row{grid-template-columns:44px 1fr;}
     .why-row p{grid-column:2;}
@@ -560,26 +600,50 @@
 
 <section class="sec-cream" id="about">
   <div class="wrap">
-    <div class="section-head reveal">
-      <p class="eyebrow">How it works</p>
-      <h2>Getting packaging is straightforward.</h2>
+    <div class="prod-head-row steps-head reveal">
+      <div class="section-head" style="margin-bottom:0;">
+        <p class="eyebrow">How it works</p>
+        <h2>Getting packaging is straightforward.</h2>
+      </div>
+      <p class="steps-lede">Three steps from browsing the range to a delivered order.</p>
     </div>
-    <div class="steps-row">
-      <div class="step-card reveal">
-        <span class="step-num">01</span>
-        <h3>Choose what you need</h3>
-        <p>Browse boxes, bags, wraps, tapes and protective materials, or tell us what you're looking for.</p>
-      </div>
-      <div class="step-card reveal" style="transition-delay:.08s">
-        <span class="step-num">02</span>
-        <h3>Request a quote</h3>
-        <p>Share your quantities and specifications and our team will price it and get back to you.</p>
-      </div>
-      <div class="step-card reveal" style="transition-delay:.16s">
-        <span class="step-num">03</span>
-        <h3>Get your packaging</h3>
-        <p>We confirm the details and get your order prepared and delivered, ready to use.</p>
-      </div>
+    <div class="steps" id="steps">
+      <div class="steps-track" aria-hidden="true"><span class="steps-fill"></span><span class="steps-runner"></span></div>
+      <ol class="steps-list">
+        <li class="step" style="--i:0">
+          <div class="step-node" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M21 8l-9-5-9 5 9 5 9-5z"/><path pathLength="1" d="M3 8v8l9 5 9-5V8"/><path pathLength="1" d="M12 13v8"/></svg>
+          </div>
+          <div class="step-card">
+            <span class="step-num">Step 01</span>
+            <h3>Choose what you need</h3>
+            <p>Browse boxes, bags, wraps, tapes and protective materials, or tell us what you're looking for.</p>
+            <span class="step-ghost" aria-hidden="true">01</span>
+          </div>
+        </li>
+        <li class="step" style="--i:1">
+          <div class="step-node" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path pathLength="1" d="M14 3v5h5"/><path pathLength="1" d="M9 13h6M9 17h4"/></svg>
+          </div>
+          <div class="step-card">
+            <span class="step-num">Step 02</span>
+            <h3>Request a quote</h3>
+            <p>Share your quantities and specifications and our team will price it and get back to you.</p>
+            <span class="step-ghost" aria-hidden="true">02</span>
+          </div>
+        </li>
+        <li class="step" style="--i:2">
+          <div class="step-node" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M2 6h12v10H2z"/><path pathLength="1" d="M14 9h4.5L22 12.5V16h-8"/><circle pathLength="1" cx="6" cy="17.5" r="2"/><circle pathLength="1" cx="18" cy="17.5" r="2"/></svg>
+          </div>
+          <div class="step-card">
+            <span class="step-num">Step 03</span>
+            <h3>Get your packaging</h3>
+            <p>We confirm the details and get your order prepared and delivered, ready to use.</p>
+            <span class="step-ghost" aria-hidden="true">03</span>
+          </div>
+        </li>
+      </ol>
     </div>
   </div>
 </section>
@@ -852,6 +916,8 @@
     });
   }, {threshold:.14, rootMargin:'0px 0px -6% 0px'});
   document.querySelectorAll('.reveal:not(.in)').forEach(elm=>revealObserver.observe(elm));
+  const stepsEl = document.getElementById('steps');
+  if(stepsEl) revealObserver.observe(stepsEl);
 
   const quoteForm = document.getElementById('quote-form');
   const quoteSuccess = document.getElementById('quote-success');
